@@ -1,0 +1,12 @@
+const express=require('express')
+const router=express.Router()
+const {userSignup,userSignin, requireSignin,signout,userById,getUser,updateUser}=require('../controllers/user')
+const {userValidate}=require('../validators/userValidator')
+const {runValidation}=require('../validators/index')
+router.post('/signup',userValidate,runValidation,userSignup)
+router.post('/signin',userSignin)
+router.get('/signuot',signout)
+router.get('/user/:userId',getUser)
+router.put('/user/:userId',updateUser)
+router.param('userId',userById)
+module.exports=router          
