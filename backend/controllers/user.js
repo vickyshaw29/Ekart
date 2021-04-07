@@ -39,7 +39,7 @@ exports.userSignin=asyncHandler(async(req,res)=>{
     const token=jwt.sign({_id:user._id},process.env.SECRET_KEY)
     res.cookie('t',token,{expire:360000+Date.now(),httpOnly:true})
     const {_id,name,isAdmin}=user
-    return res.status(200).json({token,user:{_id,name,isAdmin}})
+    return res.status(200).json({token,user:{_id,name,email,isAdmin}})
 
 }
 )
@@ -55,16 +55,19 @@ exports.getUser=(req,res)=>{
     req.profile.salt=undefined
     res.json(req.profile)
 }
-exports.updateUser=(req,res)=>{
+exports.updateUser=asyncHandler(async(req,res)=>{
     let user=req.profile
+    console.log(user)
     user=_.extend(user,req.body)
     user.updated=Date.now()
     user.save((err,user)=>{
+        console.log(err)
         if(err){
-            return res.status(400).json({error:err})
+            return res.status(400).json({error:'User not found'})
         }
         user.hashed_password=undefined
         user.salt=undefined
         return res.status(200).json(user)
     })
 }
+)

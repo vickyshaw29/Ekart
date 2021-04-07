@@ -8,6 +8,10 @@ import Singalproduct from './screens/Singalproduct'
 import Cart from './screens/Cart'
 import Login from './user/Login'
 import Register from './user/Register'
+import Details from './user/Details'
+import Shipping from './shipping/Shipping'
+import PaymentScreen from './checkouts/PaymentScreen'
+import PlaceOrderScreen from './checkouts/PlaceOrderScreen'
 const App = () => {
     return (
         <div>
@@ -16,6 +20,10 @@ const App = () => {
                 <Switch>
                     <main style={{ minHeight: '80vh' }} className="py-3">
                         <Container>
+                            <Route path='/payment' component={PaymentScreen} exact />
+                            <Route path='/placeorder' component={PlaceOrderScreen} exact />
+                            <Route path='/shipping' component={Shipping} exact />
+                            <Route path='/Profile' component={Details} exact />
                             <Route path='/register' component={Register} exact />
                             <Route path='/login' component={Login} exact />
                             <Route path='/product/:id' component={Singalproduct} />
