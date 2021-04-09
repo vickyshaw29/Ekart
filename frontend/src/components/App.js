@@ -12,6 +12,7 @@ import Details from './user/Details'
 import Shipping from './shipping/Shipping'
 import PaymentScreen from './checkouts/PaymentScreen'
 import PlaceOrderScreen from './checkouts/PlaceOrderScreen'
+import OrderScreen from './checkouts/OrderScreen'
 const App = () => {
     return (
         <div>
@@ -21,8 +22,9 @@ const App = () => {
                     <main style={{ minHeight: '80vh' }} className="py-3">
                         <Container>
                             <Route path='/payment' component={PaymentScreen} exact />
-                            <Route path='/placeorder' component={PlaceOrderScreen} exact />
+                            <Route path='/order/:id' component={OrderScreen} exact />
                             <Route path='/shipping' component={Shipping} exact />
+                            <Route path='/placeorder' component={PlaceOrderScreen} exact />
                             <Route path='/Profile' component={Details} exact />
                             <Route path='/register' component={Register} exact />
                             <Route path='/login' component={Login} exact />

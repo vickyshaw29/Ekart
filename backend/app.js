@@ -7,6 +7,7 @@ const morgan=require('morgan')
 const cors=require('cors')
 const userRoutes=require('./routes/userRoute')
 const productRoutes=require('./routes/productRoute')
+const orderRoutes=require('./routes/order')
 const {notFound,errorHandler}=require('./errorMiddleware/error')
 // app
 const app=express()
@@ -25,6 +26,7 @@ app.use((err,req,res,next)=>{
 })
 app.use('/api',userRoutes)
 app.use('/api',productRoutes)
+app.use('/api',orderRoutes)
 app.use(notFound)
 app.use(errorHandler)
 app.use(function(err,req,res,next){

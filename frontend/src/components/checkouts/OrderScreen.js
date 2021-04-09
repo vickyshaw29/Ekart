@@ -1,49 +1,67 @@
 import React ,{useEffect} from 'react'
+import axios from 'axios'
+import{PayPalButton} from 'react-paypal-button-v2'
 import { Row, Col, ListGroup, Image, Card, Button } from 'react-bootstrap'
 import { Link } from 'react-router-dom'
-import Checkout from './Checkout'
 import Message from '../stuff/Message'
-import { useSelector,useDispatch } from 'react-redux'
-import {createOrder} from '../../actions/order'
-const PlaceOrderScreen = ({history}) => {
+import Loader from '../stuff/Loader'
+import {useDispatch,useSelector} from 'react-redux'
+import {getOrderDetails,payOrder} from '../../actions/order'
+import {ORDER_PAY_RESET} from '../../constants/order'
+const OrderScreen = ({match}) => {
+    const orderId=match.params.id
+    const [sdkReady, setsdkReady] = React.useState(false)
     const dispatch=useDispatch()
     const cart = useSelector(state => state.cart)
     const { shippingAddress } = cart
-    // calculate price
-    const addDecimals=(num)=>{
-        return (Math.round(num*100)/100).toFixed(2)
-    }
-    cart.itemsPrice=addDecimals(cart.cartItems.reduce((accu,item)=>accu + item.price*item.qty,0) )
-    cart.shippingPrice=addDecimals(cart.cartItems>100?0:100)
-    cart.taxPrice=addDecimals(Number((0.15*cart.itemsPrice).toFixed(2)))
-    cart.totalPrice=addDecimals(Number(cart.itemsPrice)+Number(cart.shippingPrice)+Number(cart.taxPrice))
-    
-    const orderCreate=useSelector(state=>state.orderCreate)
-    const {order,success,error}=orderCreate
+
+    const orderDetails=useSelector(state=>state.orderDetails)
+    const {order,loading,error}=orderDetails
+
+    const orderPay=useSelector(state=>state.orderPay)
+    const {loading:loadingPay,success:successPay}=orderPay
+    console.log(orderPay)
+    // console.log(order.user.name,"these are orders")
     useEffect(()=>{
-        if(success){
-            history.push(`/order/${order._id}`)
+        const addPayPalScript=async()=>{
+            const {data:clientId}=await axios.get('http://localhost:8000/api/order/config/paypal')
+            const script=document.createElement('script')
+            script.type='text/javascript'
+            script.src=`https://www.paypal.com/sdk/js?client-id=${clientId}`
+            script.async=true
+            script.onload=()=>{
+                setsdkReady(true)
+            }
+            document.body.appendChild(script)
         }
-    },[success,history])
-    const submitHandler=()=>{
-        dispatch(createOrder({
-            orderItems:cart.cartItems,
-            shippingAddress:cart.shippingAddress,
-            paymentMethod:cart.paymentMethod,
-            itemsPrice:cart.itemsPrice,
-            shippingPrice:cart.shippingPrice,
-            taxPrice:cart.taxPrice,
-            totalPrice:cart.totalPrice
-        }))
-    }
-    return (
-        <>
-            <Checkout step1 step2 step3 step4 />
-            <Row>
+        if(!order || successPay){
+            dispatch({type:ORDER_PAY_RESET})
+            dispatch(getOrderDetails(orderId))
+        }else if(!order.isPaid){
+            if(!window.paypal){
+                addPayPalScript()
+            }else{
+                setsdkReady(true)
+            }
+        }
+        
+    },[dispatch,orderId,successPay,order ])
+   const successPaymentHandler=(paymentResult)=>{
+       console.log(paymentResult)
+       dispatch(payOrder(orderId,paymentResult))
+   }
+    return loading ? <Loader/>:error? <Message variant="danger">{error}</Message>:
+    <>
+    <h1>Order {order._id}</h1>
+    <Row>
                 <Col md={8}>
                     <ListGroup variant="flush">
                         <ListGroup.Item>
                             <h3>Shipping</h3>
+                            {console.log(order.user.name)},
+                            <p><strong>Name: </strong>{order.user.name}</p>
+                            <p> <a href={`mailTo:${order.user.email}`}>{order.user.email}</a></p>
+                            
                             <p>
                                 <strong>Address:</strong>
                                 {shippingAddress.address},
@@ -51,18 +69,26 @@ const PlaceOrderScreen = ({history}) => {
                             {shippingAddress.postalCode}
                                 {shippingAddress.country}
                             </p>
+                            {order.isDelivered?<Message variant="success">Delivered</Message>:
+                            <Message variant="danger">Not delivered</Message>
+                            }
                         </ListGroup.Item>
 
                         <ListGroup.Item>
                             <h3>PaymentMethod</h3>
+                            <p>
                             <strong>Method:</strong>
-                            {cart.paymentMethod}
+                            {cart.paymentMethod}Paid on {order.paidAt}
+                            </p>
+                            {order.isPaid? <Message variant="success">Paid</Message>:
+                            <Message variant="danger">Not Paid</Message>
+                            }
                         </ListGroup.Item>
                         <ListGroup.Item>
                             <h3>Order Items:</h3>
-                            {cart.cartItems.length === 0 ? <Message>Your cart is empty</Message> : (
+                            {order.orderItems.length === 0 ? <Message>Orderis empty</Message> : (
                                 <ListGroup variant="flush">
-                                    {cart.cartItems.map((item, i) => (
+                                    {order.orderItems.map((item, i) => (
                                         <ListGroup.Item key={i}>
                                             <Row>
                                                 <Col md={1}>
@@ -96,7 +122,7 @@ const PlaceOrderScreen = ({history}) => {
                                     <Row>
                                         <Col>Items</Col>
                                         <Col>
-                                            ${cart.itemsPrice}
+                                            ${order.itemsPrice}
                                         </Col>
                                     </Row>
                                 </ListGroup.Item>
@@ -104,7 +130,7 @@ const PlaceOrderScreen = ({history}) => {
                                     <Row>
                                         <Col>Shipping</Col>
                                         <Col>
-                                            ${cart.shippingPrice}
+                                            ${order.shippingPrice}
                                         </Col>
                                     </Row>
                                 </ListGroup.Item>
@@ -112,7 +138,7 @@ const PlaceOrderScreen = ({history}) => {
                                     <Row>
                                         <Col>Tax</Col>
                                         <Col>
-                                           ${cart.taxPrice}
+                                           ${order.taxPrice}
                                         </Col>
                                     </Row>
                                 </ListGroup.Item>
@@ -120,27 +146,36 @@ const PlaceOrderScreen = ({history}) => {
                                     <Row>
                                         <Col>Total</Col>
                                         <Col>
-                                            ${cart.totalPrice}
+                                            ${order.totalPrice}
                                         </Col>
                                     </Row>
                                 </ListGroup.Item>
                                 {/* <ListGroup.Item>
                                     {error&& <Message variant="danger">{error}</Message>}
                                 </ListGroup.Item> */}
-                                <ListGroup.Item>
+                                {/* <ListGroup.Item>
                                     <Row>
                                         <Button block 
-                                        disabled={cart.cartItems===0}
+                                        disabled={order.cartItems===0}
                                         onClick={submitHandler}
                                         >Place Order</Button>
                                     </Row>
-                                </ListGroup.Item>
+                                </ListGroup.Item> */}
+                                {!order.isPaid &&(
+                                    <ListGroup.Item>
+                                        {loadingPay && <Loader/>}
+                                        {!sdkReady?<Loader/>:(
+                                            <PayPalButton amount={order.totalPrice}
+                                            onSuccess={successPaymentHandler}
+                                            />
+                                        )}
+                                    </ListGroup.Item>
+                                )}
                             </ListGroup>
                         </Card>
                     </Col>
             </Row>
-        </>
-    )
+    </>
 }
 
-export default PlaceOrderScreen
+export default OrderScreen
