@@ -13,6 +13,7 @@ import Shipping from './shipping/Shipping'
 import PaymentScreen from './checkouts/PaymentScreen'
 import PlaceOrderScreen from './checkouts/PlaceOrderScreen'
 import OrderScreen from './checkouts/OrderScreen'
+import UserScreen from './user/UserScreen'
 const App = () => {
     return (
         <div>
@@ -29,6 +30,7 @@ const App = () => {
                             <Route path='/register' component={Register} exact />
                             <Route path='/login' component={Login} exact />
                             <Route path='/product/:id' component={Singalproduct} />
+                            <Route path='/admin/userlist' component={UserScreen} />
                             <Route path='/cart/:id?' component={Cart} exact />
                             <Route path='/' component={Homescreen} exact />
 

@@ -11,3 +11,12 @@ exports.errorHandler=(err,req,res,next)=>{
         stack:process.env.NODE_ENV=="production" ?null :err.stack
     })
 }
+exports.admin=(req,res,next)=>{
+    let user=req.profile
+    if(user && user.isAdmin){
+        next()
+    }else{
+        res.status(401)
+        throw new Error('Not authorized as an admin')
+    }
+}

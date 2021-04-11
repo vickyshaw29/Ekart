@@ -7,6 +7,7 @@ import { useSelector,useDispatch } from 'react-redux'
 import {createOrder} from '../../actions/order'
 const PlaceOrderScreen = ({history}) => {
     const dispatch=useDispatch()
+    const [flag, setflag] = React.useState(false)
     const cart = useSelector(state => state.cart)
     const { shippingAddress } = cart
     // calculate price
@@ -21,10 +22,10 @@ const PlaceOrderScreen = ({history}) => {
     const orderCreate=useSelector(state=>state.orderCreate)
     const {order,success,error}=orderCreate
     useEffect(()=>{
-        if(success){
+        if(flag && success){
             history.push(`/order/${order._id}`)
         }
-    },[success,history])
+    },[flag,success,history])
     const submitHandler=()=>{
         dispatch(createOrder({
             orderItems:cart.cartItems,
@@ -35,6 +36,7 @@ const PlaceOrderScreen = ({history}) => {
             taxPrice:cart.taxPrice,
             totalPrice:cart.totalPrice
         }))
+        setflag(true)
     }
     return (
         <>
@@ -124,9 +126,9 @@ const PlaceOrderScreen = ({history}) => {
                                         </Col>
                                     </Row>
                                 </ListGroup.Item>
-                                {/* <ListGroup.Item>
+                                <ListGroup.Item>
                                     {error&& <Message variant="danger">{error}</Message>}
-                                </ListGroup.Item> */}
+                                </ListGroup.Item>
                                 <ListGroup.Item>
                                     <Row>
                                         <Button block 

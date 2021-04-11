@@ -62,3 +62,14 @@ exports.updatedOrderToPaid=asyncHandler(async(req,res)=>{
 exports.sendClient=asyncHandler(async(req,res)=>{
     res.send(process.env.PAYPAL_CLIENT_ID)
 })
+exports.getUserOrders=async(req,res)=>{
+   try {
+    const orders=await Order.find({user:req.params.id})
+    if(!orders){
+        return res.status(404).json({error:'product not found'})
+    }
+    return res.status(200).json(orders)
+   } catch (error) {
+       console.log(error)
+   }
+}

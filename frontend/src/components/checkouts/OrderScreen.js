@@ -7,8 +7,8 @@ import Message from '../stuff/Message'
 import Loader from '../stuff/Loader'
 import {useDispatch,useSelector} from 'react-redux'
 import {getOrderDetails,payOrder} from '../../actions/order'
-import {ORDER_PAY_RESET} from '../../constants/order'
-const OrderScreen = ({match}) => {
+import {ORDER_DETAILS_RESET, ORDER_PAY_RESET} from '../../constants/order'
+const OrderScreen = ({match,history}) => {
     const orderId=match.params.id
     const [sdkReady, setsdkReady] = React.useState(false)
     const dispatch=useDispatch()
@@ -23,6 +23,9 @@ const OrderScreen = ({match}) => {
     console.log(orderPay)
     // console.log(order.user.name,"these are orders")
     useEffect(()=>{
+        dispatch(getOrderDetails(orderId))
+    },[])
+    useEffect(()=>{
         const addPayPalScript=async()=>{
             const {data:clientId}=await axios.get('http://localhost:8000/api/order/config/paypal')
             const script=document.createElement('script')
@@ -36,7 +39,9 @@ const OrderScreen = ({match}) => {
         }
         if(!order || successPay){
             dispatch({type:ORDER_PAY_RESET})
+            dispatch({type:ORDER_DETAILS_RESET})
             dispatch(getOrderDetails(orderId))
+            
         }else if(!order.isPaid){
             if(!window.paypal){
                 addPayPalScript()

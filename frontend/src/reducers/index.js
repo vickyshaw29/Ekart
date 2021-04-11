@@ -1,8 +1,8 @@
 import {combineReducers} from 'redux'
 import {productReducer,productDetalisReducer} from './postReducer'
 import {cartReducer} from './CartReducer'
-import {loginReducer,RegisterReducer,userDetailsReducer,userUpdateReducer} from './user'
-import {orderCreateReducer,orderDetailsReducer, orderPayReducer} from './orderReducer'
+import {loginReducer,RegisterReducer,userDeleteByAdmin,userDetailsReducer,userListReducer,userUpdateReducer} from './user'
+import {orderCreateReducer,orderDetailsReducer, orderPayReducer,orderListMyReducer} from './orderReducer'
 export default combineReducers({
     productList:productReducer,
     productDetails:productDetalisReducer,
@@ -13,5 +13,8 @@ export default combineReducers({
     userUpdate:userUpdateReducer,
     orderCreate:orderCreateReducer,
     orderDetails:orderDetailsReducer,
-    orderPay:orderPayReducer
+    orderPay:orderPayReducer,
+    orderList:orderListMyReducer,
+    userList:userListReducer,
+    userDelete:userDeleteByAdmin
 })
