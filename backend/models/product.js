@@ -52,6 +52,9 @@ const productSchema = new mongoose.Schema({
         type: Number,
         required: true
     },
+    updated:{
+        type:Date,
+    }
 
 })
 module.exports = mongoose.model('Product', productSchema)

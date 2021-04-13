@@ -12,7 +12,7 @@ router.put('/user/:userId',requireSignin,updateUser)
 // admin
 router.delete('/admin/user/:userId',requireSignin,admin,deleteUserByAdmin)
 router.put('/admin/user/:userId',requireSignin,admin,updateUserByAdmin)
-// 
 router.get('/users/:userId',requireSignin,admin,getAllUsers)
+// 
 router.param('userId',userById)
 module.exports=router          

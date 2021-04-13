@@ -19,7 +19,10 @@ import {
     USER_LIST_FAIL,
     USER_DELETE_REQUEST,
     USER_DELETE_SUCCESS,
-    USER_DELETE_FAIL
+    USER_DELETE_FAIL,
+    USER_UPDATE_ADMIN_REQUEST,
+    USER_UPDATE_ADMIN_SUCCESS,
+    USER_UPDATE_ADMIN_FAIL
 }
     from "../constants/user";
 
@@ -95,6 +98,18 @@ export const userDeleteByAdmin = (state = {message:{} }, action) => {
         case USER_DELETE_SUCCESS:
             return { loading: false, message: action.payload }
         case USER_DELETE_FAIL:
+            return { loading: false, error: action.payload }
+        default: return state
+    }
+}
+// update user by the admin
+export const userUpdateByAdmin = (state = {message:{} }, action) => {
+    switch (action.type) {
+        case USER_UPDATE_ADMIN_REQUEST:
+            return { loading: true }
+        case USER_UPDATE_ADMIN_SUCCESS:
+            return { loading: false,success:true, message: action.payload }
+        case USER_UPDATE_ADMIN_FAIL:
             return { loading: false, error: action.payload }
         default: return state
     }

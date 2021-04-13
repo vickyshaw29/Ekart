@@ -15,6 +15,9 @@ import {
       USER_REGISTER_FAIL,
        USER_REGISTER_REQUEST, 
        USER_REGISTER_SUCCESS, 
+       USER_UPDATE_ADMIN_FAIL, 
+       USER_UPDATE_ADMIN_REQUEST, 
+       USER_UPDATE_ADMIN_SUCCESS, 
        USER_UPDATE_FAIL, 
        USER_UPDATE_REQUEST, 
        USER_UPDATE_SUCCESS
@@ -146,5 +149,25 @@ export const deleteUserAction = (id) => async (dispatch, getState) => {
         dispatch({ type: USER_DELETE_SUCCESS, payload: data })
     } catch (error) {
         dispatch({ type: USER_DELETE_FAIL, payload:error})
+    }
+}
+// update any user by the admin
+export const updateUserActionByAdmin = (id,user) => async (dispatch, getState) => {
+    try {
+        dispatch({ type:USER_UPDATE_ADMIN_REQUEST,
+        })
+
+        const { userLogin: { userInfo } } = getState()
+        const config = {
+            headers: {
+                'Content-Type': "application/json",
+                Authorization: `Bearer ${userInfo.token}`,
+                id:id,
+            }
+        }
+        const {data}=await axios.put(`http://localhost:8000/api/admin/user/${userInfo.user._id}`,user,config,)
+        dispatch({ type:USER_UPDATE_ADMIN_SUCCESS, payload: data })
+    } catch (error) {
+        dispatch({ type:USER_UPDATE_ADMIN_FAIL, payload:error})
     }
 }
